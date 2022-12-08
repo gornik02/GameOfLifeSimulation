@@ -98,7 +98,7 @@
             // 
             // threadCountBar
             // 
-            this.threadCountBar.LargeChange = 2;
+            this.threadCountBar.LargeChange = 1;
             this.threadCountBar.Location = new System.Drawing.Point(372, 637);
             this.threadCountBar.Maximum = 4;
             this.threadCountBar.Minimum = 1;
