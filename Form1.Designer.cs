@@ -28,17 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.gameWindow = new System.Windows.Forms.PictureBox();
-            this.generationTimer = new System.Windows.Forms.Timer(this.components);
             this.restartBtn = new System.Windows.Forms.Button();
             this.exitBtn = new System.Windows.Forms.Button();
             this.playPauseBtn = new System.Windows.Forms.Button();
             this.generationCount = new System.Windows.Forms.Label();
-            this.speedTrackBar = new System.Windows.Forms.TrackBar();
-            this.speedTrackBarLabel = new System.Windows.Forms.Label();
+            this.threadCountBar = new System.Windows.Forms.TrackBar();
+            this.howManyThreadsLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gameWindow)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.speedTrackBar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.threadCountBar)).BeginInit();
             this.SuspendLayout();
             // 
             // gameWindow
@@ -50,10 +48,6 @@
             this.gameWindow.TabIndex = 0;
             this.gameWindow.TabStop = false;
             this.gameWindow.Paint += new System.Windows.Forms.PaintEventHandler(this.gameWindow_Paint);
-            // 
-            // generationTimer
-            // 
-            this.generationTimer.Tick += new System.EventHandler(this.generationTimer_Tick);
             // 
             // restartBtn
             // 
@@ -84,7 +78,7 @@
             this.playPauseBtn.Name = "playPauseBtn";
             this.playPauseBtn.Size = new System.Drawing.Size(75, 23);
             this.playPauseBtn.TabIndex = 3;
-            this.playPauseBtn.Text = "Play/Pause";
+            this.playPauseBtn.Text = "Play";
             this.playPauseBtn.UseVisualStyleBackColor = false;
             this.playPauseBtn.Click += new System.EventHandler(this.playPauseBtn_Click);
             // 
@@ -102,24 +96,26 @@
             this.generationCount.Text = "Generation: 0";
             this.generationCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // speedTrackBar
+            // threadCountBar
             // 
-            this.speedTrackBar.Location = new System.Drawing.Point(372, 637);
-            this.speedTrackBar.Minimum = 1;
-            this.speedTrackBar.Name = "speedTrackBar";
-            this.speedTrackBar.Size = new System.Drawing.Size(151, 45);
-            this.speedTrackBar.TabIndex = 5;
-            this.speedTrackBar.Value = 1;
-            this.speedTrackBar.Scroll += new System.EventHandler(this.speedTrackBar_Scroll);
+            this.threadCountBar.LargeChange = 2;
+            this.threadCountBar.Location = new System.Drawing.Point(372, 637);
+            this.threadCountBar.Maximum = 4;
+            this.threadCountBar.Minimum = 1;
+            this.threadCountBar.Name = "threadCountBar";
+            this.threadCountBar.Size = new System.Drawing.Size(151, 45);
+            this.threadCountBar.TabIndex = 5;
+            this.threadCountBar.Value = 1;
+            this.threadCountBar.Scroll += new System.EventHandler(this.threadCount_Scroll);
             // 
-            // speedTrackBarLabel
+            // howManyThreadsLabel
             // 
-            this.speedTrackBarLabel.AutoSize = true;
-            this.speedTrackBarLabel.Location = new System.Drawing.Point(325, 642);
-            this.speedTrackBarLabel.Name = "speedTrackBarLabel";
-            this.speedTrackBarLabel.Size = new System.Drawing.Size(41, 13);
-            this.speedTrackBarLabel.TabIndex = 6;
-            this.speedTrackBarLabel.Text = "Speed:";
+            this.howManyThreadsLabel.AutoSize = true;
+            this.howManyThreadsLabel.Location = new System.Drawing.Point(325, 642);
+            this.howManyThreadsLabel.Name = "howManyThreadsLabel";
+            this.howManyThreadsLabel.Size = new System.Drawing.Size(49, 13);
+            this.howManyThreadsLabel.TabIndex = 6;
+            this.howManyThreadsLabel.Text = "Threads:";
             // 
             // Form1
             // 
@@ -127,8 +123,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(624, 681);
-            this.Controls.Add(this.speedTrackBarLabel);
-            this.Controls.Add(this.speedTrackBar);
+            this.Controls.Add(this.howManyThreadsLabel);
+            this.Controls.Add(this.threadCountBar);
             this.Controls.Add(this.generationCount);
             this.Controls.Add(this.playPauseBtn);
             this.Controls.Add(this.exitBtn);
@@ -139,7 +135,7 @@
             this.Text = "Game Of Life by Gabriel Radzięta";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.gameWindow)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.speedTrackBar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.threadCountBar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -148,13 +144,12 @@
         #endregion
 
         private System.Windows.Forms.PictureBox gameWindow;
-        private System.Windows.Forms.Timer generationTimer;
         private System.Windows.Forms.Button restartBtn;
         private System.Windows.Forms.Button exitBtn;
         private System.Windows.Forms.Button playPauseBtn;
         private System.Windows.Forms.Label generationCount;
-        private System.Windows.Forms.TrackBar speedTrackBar;
-        private System.Windows.Forms.Label speedTrackBarLabel;
+        private System.Windows.Forms.TrackBar threadCountBar;
+        private System.Windows.Forms.Label howManyThreadsLabel;
     }
 }
 
