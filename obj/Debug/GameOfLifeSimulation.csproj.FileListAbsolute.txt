@@ -1,0 +1,11 @@
+D:\Projekty\GameOfLifeSimulation\bin\Debug\GameOfLifeSimulation.exe.config
+D:\Projekty\GameOfLifeSimulation\bin\Debug\GameOfLifeSimulation.exe
+D:\Projekty\GameOfLifeSimulation\bin\Debug\GameOfLifeSimulation.pdb
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.csproj.AssemblyReference.cache
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.csproj.SuggestedBindingRedirects.cache
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.Form1.resources
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.Properties.Resources.resources
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.csproj.GenerateResource.cache
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.csproj.CoreCompileInputs.cache
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.exe
+D:\Projekty\GameOfLifeSimulation\obj\Debug\GameOfLifeSimulation.pdb
