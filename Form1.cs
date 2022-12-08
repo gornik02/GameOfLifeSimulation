@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
 
 namespace GameOfLifeSimulation
@@ -15,13 +16,8 @@ namespace GameOfLifeSimulation
         private ColorTheme defaultColorTheme = new ColorTheme(Color.Cyan, Color.FromArgb(34, 34, 34));
         private ColorTheme currentColorTheme;
 
-        private Game cgol;
-        private const int ROWS = 100;
-        private const int COLUMNS = 100;
-        private const int CELL_WIDTH = 6;
-        public int generation;
-        private bool pauseStatus = false;
-        private List<bool[,]> grids = new List<bool[,]>();
+        private Game game;
+        private System.Timers.Timer timer;
 
         public Form1()
         {
@@ -30,16 +26,18 @@ namespace GameOfLifeSimulation
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            timer = new System.Timers.Timer();
+            timer.Interval = 125;
+            timer.Elapsed += OnTimerTick;
+
             currentColorTheme = defaultColorTheme;
             gameWindow.BackColor = currentColorTheme.GetBackGround();
-            cgol = new Game(new SolidBrush(currentColorTheme.GetForeGround()), ROWS, COLUMNS, CELL_WIDTH);
-            generation = 0;
-            generationTimer.Start();
+            game = new Game(currentColorTheme, timer);
         }
 
         private void gameWindow_Paint(object sender, PaintEventArgs e)
         {
-            cgol.Paint(e.Graphics);
+            game.Paint(e.Graphics);
         }
 
         private void restartBtn_Click(object sender, EventArgs e)
@@ -49,7 +47,13 @@ namespace GameOfLifeSimulation
 
         private void playPauseBtn_Click(object sender, EventArgs e)
         {
-            PlayPause();
+            if (game.IsGameRunning())
+            {
+                Pause();
+            } else
+            {
+                Play();
+            }
         }
 
         private void exitBtn_Click(object sender, EventArgs e)
@@ -57,55 +61,74 @@ namespace GameOfLifeSimulation
             Application.Exit();
         }
 
-        private void speedTrackBar_Scroll(object sender, EventArgs e)
+        private void threadCount_Scroll(object sender, EventArgs e)
         {
-            PlayPause();
-            generationTimer.Interval = 1000 / (speedTrackBar.Value * 8);
-            PlayPause();
+            Pause();
+            game.UpdateThreadCount(threadCountBar.Value);
+            Play();
         }
 
-        private void generationTimer_Tick(object sender, EventArgs e)
+        private void OnTimerTick(Object source, ElapsedEventArgs e)
         {
-            grids.Add((bool[,])cgol.GetGrid().Clone());
-            if (grids.Count >= 7 && cgol.Equals(grids[grids.Count - 7]) || grids.Count >= 3 && cgol.Equals(grids[grids.Count - 3]))
+            SafeAction(Refresh);
+            SafeAction(() =>
             {
-                PlayPause();
+                generationCount.Text = "Generation: " + game.GetGeneration();
+            });
+
+            if (game.ShouldFinish() && game.IsGameRunning())
+            {
+                Pause();
                 MessageBox.Show("The game can go on no longer. Restarting...", "Game over!", MessageBoxButtons.OK);
                 Restart();
-            }
-            else
-            {
-                generation++;
-                cgol.NewGeneration();
-                generationCount.Text = "Generation: " + generation.ToString();
-                Refresh();
             }
         }
 
         private void Restart()
         {
-            cgol = new Game(new SolidBrush(currentColorTheme.GetForeGround()), ROWS, COLUMNS, CELL_WIDTH);
-            grids = new List<bool[,]>();
-            generation = 0;
-            playPauseBtn.Text = "Pause";
-            pauseStatus = false;
-            generationTimer.Start();
-            Refresh();
+            game.Restart();
+            SafeAction(Refresh);
+            SafeAction(() =>
+            {
+                generationCount.Text = "Generation: " + game.GetGeneration();
+            });
         }
 
-        private void PlayPause()
+        private void Play()
         {
-            pauseStatus = !pauseStatus;
+            game.Start();
+            timer.Start();
 
-            if (pauseStatus)
+            SafeAction(() =>
             {
-                generationTimer.Stop();
+                playPauseBtn.Text = "Pause";
+            });
+        }
+
+        private void Pause()
+        {
+            game.Stop();
+            timer.Stop();
+
+            SafeAction(() =>
+            {
                 playPauseBtn.Text = "Play";
+            });
+        }
+
+        private void SafeAction(Action action)
+        {
+            if (InvokeRequired)
+            {
+                Action safeAction = delegate
+                {
+                    SafeAction(action);
+                };
+                Invoke(safeAction);
             }
             else
             {
-                generationTimer.Start();
-                playPauseBtn.Text = "Pause";
+                action();
             }
         }
     }

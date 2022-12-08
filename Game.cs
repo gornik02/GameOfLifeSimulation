@@ -4,120 +4,128 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace GameOfLifeSimulation
 {
     class Game
     {
-        private bool[,] myGrid;
-        private int myRows, myColumns, myCellWidth;
+        private int threadCount;
+        private List<CancellableTask> threads;
+        private GameCalculations cgol;
+        private const int ROWS = 100;
+        private const int COLUMNS = 100;
+        private const int CELL_WIDTH = 6;
+        private int generation;
+        private bool isRunning;
+        private List<bool[,]> grids;
+
+        private Timer timer;
+
         private Brush myCellColor;
 
-        public Game(Brush cellColor, int rows, int columns, int cellWidth)
+        public Game(ColorTheme currentColorTheme, Timer timer)
         {
-            myCellColor = cellColor;
-            myRows = rows;
-            myColumns = columns;
-            myCellWidth = cellWidth;
+            this.timer = timer;
+            isRunning = false;
+            myCellColor = new SolidBrush(currentColorTheme.GetForeGround());
 
-            myGrid = new bool[myRows, myColumns];
+            threadCount = 1;
+            threads = new List<CancellableTask>();
 
-
-            Random randomGenerator = new Random();
-            for (int r = 0; r < myGrid.GetLength(0); r++)
-            {
-                for (int c = 0; c < myGrid.GetLength(1); c++)
-                {
-                    int randomNumber = randomGenerator.Next(8);
-                    if (randomNumber == 0)
-                        myGrid[r, c] = true;
-                }
-            }
+            cgol = new GameCalculations(ROWS, COLUMNS, CELL_WIDTH);
+            grids = new List<bool[,]>();
+            generation = 0;
         }
 
-        private int CheckStatus(int row, int col)
+        public void Start()
         {
-
-            int count = 0;
-
-            if ((row - 1 >= 0 && col - 1 > 0) && myGrid[row - 1, col - 1] == true)
-                count++;
-            if ((row - 1 >= 0) && myGrid[row - 1, col] == true)
-                count++;
-            if ((row - 1 >= 0 && col + 1 < myColumns) && myGrid[row - 1, col + 1] == true)
-                count++;
-            if ((col - 1 >= 0) && myGrid[row, col - 1] == true)
-                count++;
-            if ((col + 1 < myColumns) && myGrid[row, col + 1] == true)
-                count++;
-            if ((row + 1 < myRows && col - 1 >= 0) && myGrid[row + 1, col - 1] == true)
-                count++;
-            if ((row + 1 < myRows) && myGrid[row + 1, col] == true)
-                count++;
-            if ((row + 1 < myRows && col + 1 < myColumns) && myGrid[row + 1, col + 1] == true)
-                count++;
-
-            return count;
+            isRunning = true;
+            StopAndClearGameThreads();
+            CreateGameThreads();
+            StartGameThreads();
         }
 
-        public void NewGeneration()
+        public void Stop()
         {
-            Form1 temp = new Form1();
+            isRunning = false;
+            StopAndClearGameThreads();
+        }
 
-            bool[,] newGrid = new bool[myRows, myColumns];
-            for (int r = 0; r < myGrid.GetLength(0); r++)
-            {
-                for (int c = 0; c < myGrid.GetLength(1); c++)
-                {
-                    int count = CheckStatus(r, c);
+        public bool ShouldFinish()
+        {
+            return grids.Count >= 6 && cgol.Equals(grids[grids.Count - 6]) || grids.Count >= 4 && cgol.Equals(grids[grids.Count - 4]);
+        }
 
+        public bool IsGameRunning()
+        {
+            return isRunning;
+        }
 
-                    if (myGrid[r, c])
-                    {
-                        if (count == 2 || count == 3)
-                            newGrid[r, c] = true;
-                        if (count < 2 || count > 3)
-                            newGrid[r, c] = false;
-                    }
-                    else
-                    {
-                        if (count == 3)
-                            newGrid[r, c] = true;
-                    }
-                }
-            }
-            myGrid = newGrid;
+        public void Restart()
+        {
+            Stop();
+            cgol = new GameCalculations(ROWS, COLUMNS, CELL_WIDTH);
+            grids = new List<bool[,]>();
+            generation = 0;
+        }
+
+        public int GetGeneration()
+        {
+            return generation;
         }
 
         public void Paint(Graphics g)
         {
-            for (int r = 0; r < myGrid.GetLength(0); r++)
+            bool[,] grid = cgol.GetGrid();
+
+            for (int r = 0; r < grid.GetLength(0); r++)
             {
-                for (int c = 0; c < myGrid.GetLength(1); c++)
+                for (int c = 0; c < grid.GetLength(1); c++)
                 {
-                    if (myGrid[r, c])
-                        g.FillRectangle(myCellColor, c * myCellWidth, r * myCellWidth, myCellWidth, myCellWidth);
+                    if (grid[r, c])
+                        g.FillRectangle(myCellColor, c * CELL_WIDTH, r * CELL_WIDTH, CELL_WIDTH, CELL_WIDTH);
                 }
             }
         }
 
-        public bool[,] GetGrid()
+        private void CreateGeneration(Object source, ElapsedEventArgs e)
         {
-            return myGrid;
+            grids.Add((bool[,])cgol.GetGrid().Clone());
+            generation++;
+            cgol.NewGeneration();
         }
 
-        public bool Equals(bool[,] g)
+        public void UpdateThreadCount(int updatedThreadCount)
         {
-            for (int r = 0; r < myGrid.GetUpperBound(0); r++)
-                for (int c = 0; c < myGrid.GetUpperBound(1); c++)
-                    if (myGrid[r, c] != g[r, c])
-                        return false;
-            return true;
+            threadCount = updatedThreadCount;
         }
 
-        public void SetCellColor(Color c)
+        private void CreateGameThreads()
         {
-            myCellColor = new SolidBrush(c);
+            for (int i = 0; i < threadCount; i++)
+            {
+                AddGameThread();
+            }
+        }
+
+        private void AddGameThread()
+        {
+            threads.Add(new CancellableTask(() =>
+            {
+                timer.Elapsed += CreateGeneration;
+            }));
+        }
+
+        private void StartGameThreads()
+        {
+            threads.ForEach(t => t.Start());
+        }
+
+        private void StopAndClearGameThreads()
+        {
+            threads.ForEach(t => t.Cancel());
+            threads.Clear();
         }
     }
 }
