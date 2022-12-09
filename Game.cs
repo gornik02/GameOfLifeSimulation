@@ -52,11 +52,6 @@ namespace GameOfLifeSimulation
             StopAndClearGameThreads();
         }
 
-        public bool ShouldFinish()
-        {
-            return grids.Count >= 6 && cgol.Equals(grids[grids.Count - 6]) || grids.Count >= 4 && cgol.Equals(grids[grids.Count - 4]);
-        }
-
         public bool IsGameRunning()
         {
             return isRunning;

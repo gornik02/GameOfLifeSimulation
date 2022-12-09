@@ -59,8 +59,6 @@ namespace GameOfLifeSimulation
 
         public void NewGeneration()
         {
-            Form1 temp = new Form1();
-
             bool[,] newGrid = new bool[myRows, myColumns];
             for (int r = 0; r < myGrid.GetLength(0); r++)
             {

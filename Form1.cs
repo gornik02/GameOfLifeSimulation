@@ -75,13 +75,6 @@ namespace GameOfLifeSimulation
             {
                 generationCount.Text = "Generation: " + game.GetGeneration();
             });
-
-            if (game.ShouldFinish() && game.IsGameRunning())
-            {
-                Pause();
-                MessageBox.Show("The game can go on no longer. Restarting...", "Game over!", MessageBoxButtons.OK);
-                Restart();
-            }
         }
 
         private void Restart()
