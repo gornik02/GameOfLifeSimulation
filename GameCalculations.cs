@@ -12,7 +12,7 @@ namespace GameOfLifeSimulation
         private bool[,] myGrid;
         private int myRows, myColumns;
 
-        public GameCalculations(int rows, int columns, int cellWidth)
+        public GameCalculations(int rows, int columns)
         {
             myRows = rows;
             myColumns = columns;

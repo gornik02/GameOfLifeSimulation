@@ -12,7 +12,8 @@ namespace GameOfLifeSimulation
     {
         private int threadCount;
         private List<CancellableTask> threads;
-        private GameCalculations cgol;
+
+        private GameCalculations gameCalculations;
         private const int ROWS = 100;
         private const int COLUMNS = 100;
         private const int CELL_WIDTH = 6;
@@ -33,7 +34,7 @@ namespace GameOfLifeSimulation
             threadCount = 1;
             threads = new List<CancellableTask>();
 
-            cgol = new GameCalculations(ROWS, COLUMNS, CELL_WIDTH);
+            gameCalculations = new GameCalculations(ROWS, COLUMNS);
             grids = new List<bool[,]>();
             generation = 0;
         }
@@ -60,7 +61,7 @@ namespace GameOfLifeSimulation
         public void Restart()
         {
             Stop();
-            cgol = new GameCalculations(ROWS, COLUMNS, CELL_WIDTH);
+            gameCalculations = new GameCalculations(ROWS, COLUMNS);
             grids = new List<bool[,]>();
             generation = 0;
         }
@@ -72,7 +73,7 @@ namespace GameOfLifeSimulation
 
         public void Paint(Graphics g)
         {
-            bool[,] grid = cgol.GetGrid();
+            bool[,] grid = gameCalculations.GetGrid();
 
             for (int r = 0; r < grid.GetLength(0); r++)
             {
@@ -86,9 +87,9 @@ namespace GameOfLifeSimulation
 
         private void CreateGeneration(Object source, ElapsedEventArgs e)
         {
-            grids.Add((bool[,])cgol.GetGrid().Clone());
+            grids.Add((bool[,])gameCalculations.GetGrid().Clone());
             generation++;
-            cgol.NewGeneration();
+            gameCalculations.NewGeneration();
         }
 
         public void UpdateThreadCount(int updatedThreadCount)
